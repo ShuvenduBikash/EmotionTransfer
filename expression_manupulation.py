@@ -49,10 +49,10 @@ parser.add_argument('--n_critic', type=int, default=5, help='number of training 
 opt = parser.parse_args()
 print(opt)
 """
-Devugging opt
+# Devugging opt
 class Opt:
     pass
-opt = None
+opt = Opt()
 
 opt.epoch = 0
 opt.n_epochs = 200
@@ -72,7 +72,7 @@ opt.selected_attrs=['Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Male', 'Young']
 opt.n_critic=5
 """
 
-c_dim = 8 # number of classc_dim
+c_dim = 7 # number of classc_dim
 img_shape = (opt.channels, opt.img_height, opt.img_width)
 
 cuda = True if torch.cuda.is_available() else False
@@ -123,11 +123,11 @@ val_transforms = [transforms.Resize((opt.img_height, opt.img_width), Image.BICUB
 
 
 dataloader = DataLoader(
-    UTKFaceDataset('D:\\Research\\data\\UTKFace', transforms_=train_transforms),
+    CustomDataset(['D:\\Research\\data\\KDEF_and_AKDEF\\KDEF', 'D:\\Research\\data\\DDCFL'], transforms_=train_transforms),
     batch_size=opt.batch_size, shuffle=True)
 
 val_dataloader = DataLoader(
-    UTKFaceDataset('D:\\Research\\data\\UTKFace', transforms_=val_transforms),
+    Custom_NE_Dataset(['D:\\Research\\data\\KDEF_and_AKDEF\\KDEF', 'D:\\Research\\data\\DDCFL'], transforms_=val_transforms),
     batch_size=opt.batch_size, shuffle=True)
 
 # Tensor type

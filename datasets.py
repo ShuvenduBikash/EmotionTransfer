@@ -10,7 +10,8 @@ import torchvision.transforms as transforms
 
 
 class CelebADataset(Dataset):
-    def __init__(self, root, transforms_=None, mode='train', attributes=['Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Male', 'Young']):
+    def __init__(self, root, transforms_=None, mode='train',
+                 attributes=['Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Male', 'Young']):
         # celebA: root='D:\Research\\data\\CelebA\\img_align_celeba'
         self.transform = transforms.Compose(transforms_)
 
@@ -47,44 +48,188 @@ class CelebADataset(Dataset):
 
     def __len__(self):
         return len(self.files)
-    
 
 
-class UTKFaceDataset(Dataset):
-    def __init__(self, root='D:\\Research\\data\\UTKFace', transforms_=None):
+class KDEFDataset(Dataset):
+    def __init__(self, root='data\\KDEF', transforms_=None):
         self.transform = transforms.Compose(transforms_)
-        self.files = sorted(glob.glob('%s/*.jpg' % root))
+        self.files = []
 
-
+        for path, subdirs, files in os.walk(root):
+            for name in files:
+                self.files.append(os.path.join(path, name))
 
     def __getitem__(self, index):
         filepath = self.files[index % len(self.files)]
-        
+
         filename = filepath.split('\\')[-1]
         img = self.transform(Image.open(filepath))
-        class_= int(filename.split('_')[0])
-        
-        label = torch.zeros(8)
-        if class_<=12:
-            label[0]=1
-        if 13<=class_<=20:
-            label[1]=1
-        if 21<=class_<=25:
-            label[2]=1
-        if 26<=class_<=30:
-            label[3]=1
-        if 31<=class_<=39:
-            label[4]=1
-        if 40<=class_<=49:
-            label[5]=1
-        if 50<=class_<=64:
-            label[6]=1
-        if class_>64:
-            label[7]=1
+        class_ = filename[4:6]
+
+        label = torch.zeros(7)
+        if class_ == 'NE':
+            label[0] = 1
+        if class_ == 'AF':
+            label[1] = 1
+        if class_ == 'AN':
+            label[2] = 1
+        if class_ == 'DI':
+            label[3] = 1
+        if class_ == 'SU':
+            label[4] = 1
+        if class_ == 'SA':
+            label[5] = 1
+        if class_ == 'HA':
+            label[6] = 1
 
         return img, label
 
     def __len__(self):
         return len(self.files)
-    
 
+
+class KDEF_NE_Dataset(Dataset):
+    def __init__(self, root='data\\KDEF', transforms_=None):
+        self.transform = transforms.Compose(transforms_)
+        self.files = []
+
+        for path, subdirs, files in os.walk(root):
+            for name in files:
+                self.files.append(os.path.join(path, name))
+        self.selected_files = []
+
+        for file in self.files:
+            filename = file.split('\\')[-1]
+            class_ = filename[4:6]
+            if class_ == 'NE':
+                self.selected_files.append(file)
+
+        self.files = self.selected_files
+
+    def __getitem__(self, index):
+        filepath = self.files[index % len(self.files)]
+
+        filename = filepath.split('\\')[-1]
+        img = self.transform(Image.open(filepath))
+        class_ = filename[4:6]
+
+        label = torch.zeros(7)
+        if class_ == 'NE':
+            label[0] = 1
+        if class_ == 'AF':
+            label[1] = 1
+        if class_ == 'AN':
+            label[2] = 1
+        if class_ == 'DI':
+            label[3] = 1
+        if class_ == 'SU':
+            label[4] = 1
+        if class_ == 'SA':
+            label[5] = 1
+        if class_ == 'HA':
+            label[6] = 1
+
+        return img, label
+
+    def __len__(self):
+        return len(self.files)
+
+
+class CustomDataset(Dataset):
+    def __init__(self, rootList=['D:\\Research\\data\\KDEF_and_AKDEF\\KDEF', 'D:\\Research\\data\\DDCFL'],
+                 transforms_=None):
+        self.transform = transforms.Compose(transforms_)
+        self.files = []
+
+        for root in rootList:
+            for path, subdirs, files in os.walk(root):
+                for name in files:
+                    self.files.append(os.path.join(path, name))
+
+    def __getitem__(self, index):
+        filepath = self.files[index % len(self.files)]
+
+        filename = filepath.split('\\')[-1]
+        img = self.transform(Image.open(filepath))
+
+        if len(filename) > 13:
+            class_ = filename.split('_')[2]
+        else:
+            class_ = filename[4:6]
+
+        label = torch.zeros(7)
+        if class_ == 'NE' or class_ == 'Neutral':
+            label[0] = 1
+        if class_ == 'AF' or class_ == 'Afraid':
+            label[1] = 1
+        if class_ == 'AN' or class_ == 'Angry':
+            label[2] = 1
+        if class_ == 'DI' or class_ == 'Disgusted':
+            label[3] = 1
+        if class_ == 'SU' or class_ == 'Surprised':
+            label[4] = 1
+        if class_ == 'SA' or class_ == 'Sad':
+            label[5] = 1
+        if class_ == 'HA' or class_ == 'Happy':
+            label[6] = 1
+
+        return img, label
+
+    def __len__(self):
+        return len(self.files)
+
+
+class Custom_NE_Dataset(Dataset):
+    def __init__(self, rootList=['D:\\Research\\data\\KDEF_and_AKDEF\\KDEF', 'D:\\Research\\data\\DDCFL'], transforms_=None):
+        self.transform = transforms.Compose(transforms_)
+        self.files = []
+
+        for root in rootList:
+            for path, subdirs, files in os.walk(root):
+                for name in files:
+                    self.files.append(os.path.join(path, name))
+        self.selected_files = []
+
+        for file in self.files:
+            filename = file.split('\\')[-1]
+
+            if len(filename) > 13:
+                class_ = filename.split('_')[2]
+            else:
+                class_ = filename[4:6]
+            if class_ == 'NE' or class_ == 'Neutral':
+                self.selected_files.append(file)
+
+        self.files = self.selected_files
+
+    def __getitem__(self, index):
+        filepath = self.files[index % len(self.files)]
+
+        filename = filepath.split('\\')[-1]
+        img = self.transform(Image.open(filepath))
+
+        if len(filename) > 13:
+            class_ = filename.split('_')[2]
+        else:
+            class_ = filename[4:6]
+
+        label = torch.zeros(7)
+        if class_ == 'NE' or class_ == 'Neutral':
+            label[0] = 1
+        if class_ == 'AF' or class_ == 'Afraid':
+            label[1] = 1
+        if class_ == 'AN' or class_ == 'Angry':
+            label[2] = 1
+        if class_ == 'DI' or class_ == 'Disgusted':
+            label[3] = 1
+        if class_ == 'SU' or class_ == 'Surprised':
+            label[4] = 1
+        if class_ == 'SA' or class_ == 'Sad':
+            label[5] = 1
+        if class_ == 'HA' or class_ == 'Happy':
+            label[6] = 1
+
+        return img, label
+
+    def __len__(self):
+        return len(self.files)
