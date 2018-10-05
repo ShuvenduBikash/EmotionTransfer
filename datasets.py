@@ -55,9 +55,10 @@ class KDEFDataset(Dataset):
         self.transform = transforms.Compose(transforms_)
         self.files = []
 
-        for path, subdirs, files in os.walk(root):
-            for name in files:
-                self.files.append(os.path.join(path, name))
+        for _ in range(5):
+            for path, subdirs, files in os.walk(root):
+                for name in files:
+                    self.files.append(os.path.join(path, name))
 
     def __getitem__(self, index):
         filepath = self.files[index % len(self.files)]
@@ -180,7 +181,8 @@ class CustomDataset(Dataset):
 
 
 class Custom_NE_Dataset(Dataset):
-    def __init__(self, rootList=['D:\\Research\\data\\KDEF_and_AKDEF\\KDEF', 'D:\\Research\\data\\DDCFL'], transforms_=None):
+    def __init__(self, rootList=['D:\\Research\\data\\KDEF_and_AKDEF\\KDEF', 'D:\\Research\\data\\DDCFL'],
+                 transforms_=None):
         self.transform = transforms.Compose(transforms_)
         self.files = []
 

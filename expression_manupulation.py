@@ -111,24 +111,26 @@ optimizer_G = torch.optim.Adam(generator.parameters(), lr=opt.lr, betas=(opt.b1,
 optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
 
 # Configure dataloaders
-train_transforms = [transforms.Resize(int(1.12 * opt.img_height), Image.BICUBIC),
-                    transforms.RandomCrop(opt.img_height),
+train_transforms = [transforms.Resize(int(1.25 * opt.img_height), Image.BICUBIC),
+                    transforms.CenterCrop(opt.img_height),
                     transforms.RandomHorizontalFlip(),
                     transforms.ToTensor(),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
 
-val_transforms = [transforms.Resize((opt.img_height, opt.img_width), Image.BICUBIC),
+val_transforms = [transforms.Resize(int(1.25 * opt.img_height), Image.BICUBIC),
+                  transforms.CenterCrop(opt.img_height),
                   transforms.ToTensor(),
                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
 
 
 dataloader = DataLoader(
-    CustomDataset(['D:\\Research\\data\\KDEF_and_AKDEF\\KDEF', 'D:\\Research\\data\\DDCFL'], transforms_=train_transforms),
+    KDEFDataset('D:\\Research\\data\\KDEF_and_AKDEF\\cleanned', transforms_=train_transforms),
     batch_size=opt.batch_size, shuffle=True)
 
 val_dataloader = DataLoader(
-    Custom_NE_Dataset(['D:\\Research\\data\\KDEF_and_AKDEF\\KDEF', 'D:\\Research\\data\\DDCFL'], transforms_=val_transforms),
+    KDEF_NE_Dataset('D:\\Research\\data\\KDEF_and_AKDEF\\cleanned', transforms_=val_transforms),
     batch_size=opt.batch_size, shuffle=True)
+
 
 # Tensor type
 Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
